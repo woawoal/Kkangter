@@ -125,6 +125,7 @@
     ship();
     const fd = new FormData();
     fd.append('type', t);
+    const vp = document.getElementById('vision_parse_id'); if (vp && vp.value) fd.append('vision_parse_id', vp.value);
     ['price', 'note', 'ship_method'].forEach(n => fd.append(n, form.elements[n].value));
     if (t !== 'want') picked.have.forEach((v, id) => { fd.append('have', id); if (v.price) fd.append('price_' + id, v.price); });
     if (t !== 'sell') picked.want.forEach((v, id) => fd.append('want', id));
@@ -138,6 +139,71 @@
       alert('네트워크 오류가 났어요. 다시 시도해 주세요'); btn.disabled = false; btn.textContent = '올리기';
     }
   });
+
+  // ---- ✨ 사진으로 자동 채우기 ----
+  const aiInput = document.getElementById('ai-input');
+  if (aiInput) {
+    const out = document.getElementById('ai-result');
+    const redraw = () => { renderPicked('have'); renderPicked('want'); document.querySelectorAll('.picker').forEach(p => p._draw()); };
+    let dets = [];  // [{mark, role, chosen, candidates, ...}]
+
+    aiInput.addEventListener('change', async () => {
+      const f = aiInput.files[0]; aiInput.value = '';
+      if (!f) return;
+      const blob = await shrink(f).catch(() => f);
+      out.innerHTML = '<div class="small muted" style="margin-top:10px">🔍 인형을 찾는 중… (5~15초)</div>';
+      const fd = new FormData(); fd.append('image', blob, 'image.jpg');
+      let r;
+      try {
+        const res = await fetch('/api/vision/parse', { method: 'POST', body: fd });
+        r = await res.json();
+        if (!res.ok) throw new Error(r.detail || '오류');
+      } catch (e) { out.innerHTML = `<div class="error">${esc(e.message || '사진을 읽지 못했어요')}</div>`; return; }
+
+      document.getElementById('vision_parse_id').value = r.parse_id;
+      if (photos.length < MAX) { photos.push({ blob, url: URL.createObjectURL(blob) }); drawPhotos(); }
+      if (r.post_type) { form.querySelector(`input[name=type][value=${r.post_type}]`).checked = true; applyType(); }
+      const t = curType();
+      dets = r.detections.map(d => {
+        let role = d.mark !== 'none' ? d.mark : (r.image_type === 'real_photo' ? (t === 'want' ? 'want' : 'have') : null);
+        const chosen = role && d.auto ? d.candidates[0].id : null;
+        if (chosen) picked[role].set(chosen, { name: d.candidates[0].name, price: '' });
+        return { ...d, role, chosen };
+      });
+      redraw(); draw(r);
+    });
+
+    function draw(r) {
+      const shown = dets.filter(d => d.role), hidden = dets.length - shown.length;
+      const head = r.series
+        ? `<b>${esc(r.series.name)}</b> 시리즈로 인식했어요`
+        : `<b>카탈로그에 없는 시리즈</b>${r.series_text ? ` (“${esc(r.series_text)}”)` : ''}예요`;
+      out.innerHTML = `<div style="margin-top:12px" class="small">${head}${hidden ? ` · 표시 없는 인형 ${hidden}개는 제외` : ''}</div>` +
+        shown.map((d, i) => `
+          <div class="item-row" style="flex-wrap:wrap;gap:6px">
+            <span class="tag ${d.role === 'have' ? 't-trade' : 't-want'}">${d.role === 'have' ? '가진 것' : '원하는 것'}</span>
+            <span class="small muted">${esc(d.label_text || d.animal || '?')}${d.position ? ' · ' + esc(d.position) : ''}</span>
+            <div class="checks" style="width:100%;gap:6px">${d.candidates.length ? d.candidates.map(c =>
+              `<button type="button" class="chip${c.id === d.chosen ? ' on' : ''}" data-i="${dets.indexOf(d)}" data-id="${c.id}" data-name="${esc(c.name)}">${esc(c.name)}${r.series ? '' : ` <span class="small">· ${esc(c.series)}</span>`}</button>`).join('')
+              : '<span class="small muted">맞는 캐릭터를 못 찾았어요 — 아래에서 직접 골라 주세요</span>'}</div>
+          </div>`).join('') +
+        (r.catalog_suggestion ? `<button type="button" class="btn ghost sm" id="ai-req" style="margin-top:10px">이 시리즈 추가 요청하기</button>` : '') +
+        `<p class="hint">틀린 건 다른 후보를 누르거나 아래 선택기에서 고쳐 주세요. 고친 내용은 AI를 개선하는 데 쓰여요.</p>`;
+      out.querySelectorAll('button[data-i]').forEach(b => b.onclick = () => {
+        const d = dets[+b.dataset.i], id = +b.dataset.id;
+        if (d.chosen) picked[d.role].delete(d.chosen);
+        if (d.chosen === id) d.chosen = null;
+        else { d.chosen = id; picked[d.role].set(id, { name: b.dataset.name, price: '' }); }
+        redraw(); draw(r);
+      });
+      const req = document.getElementById('ai-req');
+      if (req) req.onclick = async () => {
+        const fd = new FormData(); fd.append('text', `[사진 인식] ${r.catalog_suggestion}`);
+        await fetch('/api/catalog-request', { method: 'POST', body: fd });
+        req.textContent = '요청했어요! 추가되면 다시 시도해 주세요'; req.disabled = true;
+      };
+    }
+  }
 
   applyType();
 })();

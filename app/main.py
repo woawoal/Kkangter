@@ -10,7 +10,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from .config import BASE_DIR, settings
 from .db import Base, SessionLocal, engine
 from .deps import LoginRequired, templates
-from .routes import admin, auth, me, posts, public
+from .routes import admin, auth, me, posts, public, vision
 from .services.catalog import seed_catalog
 
 
@@ -35,7 +35,7 @@ if settings.STORAGE_BACKEND == "local":
     settings.UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
     app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
 
-for r in (public.router, auth.router, posts.router, me.router, admin.router):
+for r in (public.router, auth.router, posts.router, me.router, admin.router, vision.router):
     app.include_router(r)
 
 

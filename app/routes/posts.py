@@ -132,7 +132,8 @@ def new_post(request: Request, type: str = "sell", char: int | None = None, db: 
         return RedirectResponse("/onboarding", 303)
     preset = db.get(Character, char) if char else None
     return render(request, "new.html", db, user, type=type if type in POST_TYPES else "sell", types=POST_TYPES,
-                  catalog_json=_catalog_json(db), preset=preset, max_photos=settings.MAX_PHOTOS)
+                  catalog_json=_catalog_json(db), preset=preset, max_photos=settings.MAX_PHOTOS,
+                  vision=settings.vision_enabled)
 
 
 def _catalog_json(db: Session):
@@ -197,6 +198,10 @@ async def create_post(request: Request, db: Session = Depends(get_db), user: Use
     db.flush()
     track(db, "post_created", user_id=user.id, post_id=post.id, type=type_, n_items=len(post.items),
           n_photos=len(urls))
+    vid = str(form.get("vision_parse_id", ""))
+    if vid.isdigit():
+        from .vision import record_acceptance
+        record_acceptance(db, int(vid), user.id, post.id, list(dict.fromkeys(have)), list(dict.fromkeys(want)))
     notes = matching.match_new_post(db, post)
     db.commit()
     flash(request, "글을 올렸어요!" + (f" 관심 있는 {len(notes)}명에게 알림을 보냈어요." if notes else ""))

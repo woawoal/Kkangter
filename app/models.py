@@ -207,6 +207,24 @@ class Report(Base):
     post: Mapped[Post] = relationship()
 
 
+class VisionParse(Base):
+    """사진 자동 인식 기록. AI 제안(suggested)과 사용자가 최종 선택한 값(accepted)을 함께 남겨
+    → 정확도 지표 + 나중에 직접 학습할 라벨 데이터가 된다."""
+    __tablename__ = "vision_parses"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True, index=True)
+    image_sha: Mapped[str] = mapped_column(String(64), index=True)
+    image_url: Mapped[str] = mapped_column(String(400), default="")
+    model: Mapped[str] = mapped_column(String(60), default="")
+    raw: Mapped[dict] = mapped_column(JSON, default=dict)        # 모델 원본 출력
+    result: Mapped[dict] = mapped_column(JSON, default=dict)     # 카탈로그 매칭 결과
+    series_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    post_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    accepted: Mapped[dict | None] = mapped_column(JSON, nullable=True)  # {"have":[ids],"want":[ids]}
+    latency_ms: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
+
+
 class BetaSignup(Base):
     __tablename__ = "beta_signups"
     id: Mapped[int] = mapped_column(primary_key=True)

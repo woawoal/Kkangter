@@ -104,7 +104,7 @@ textarea{min-height:96px;resize:vertical}
 /* 상세 */
 .gallery{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -16px;scrollbar-width:none}
 .gallery::-webkit-scrollbar{display:none}
-.gallery img{flex:none;width:100%;aspect-ratio:1;object-fit:cover;scroll-snap-align:center;background:#F6EEE7}
+.gallery img{flex:none;width:100%;aspect-ratio:1;object-fit:contain;scroll-snap-align:center;background:#F6EEE7}
 .dots{text-align:center;font-size:12px;color:var(--sub);margin-top:6px}
 .item-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px dashed var(--line)}
 .item-row:last-child{border-bottom:0}

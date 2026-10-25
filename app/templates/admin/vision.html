@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+{% include "admin/_nav.html" %}
+<div class="kpis">{% for k, v in stats.items() %}<div class="kpi"><b>{{ v }}</b><span>{{ k }}</span></div>{% endfor %}</div>
+<p class="hint">Top-1 = AI 1순위 후보를 사용자가 그대로 썼는지 · Top-3 = 후보 3개 안에 정답이 있었는지 (HAVE/WISH 표시된 인형 기준)</p>
+<div class="h2">최근 인식</div>
+{% for vp in items %}
+<div class="panel small">
+  <div class="row" style="align-items:flex-start;gap:12px">
+    {% if vp.image_url %}<a href="{{ vp.image_url }}" target="_blank"><div class="thumb" style="width:64px;height:64px;border-radius:10px;background:#F6EEE7 center/cover;background-image:url({{ vp.image_url }})"></div></a>{% endif %}
+    <div style="flex:1;min-width:0">
+      <b>{{ vp.result.series.name if vp.result.series else ('❓ ' ~ (vp.result.series_text or '시리즈 미확인')) }}</b>
+      <span class="muted">· {{ vp.result.image_type }} · {{ vp.latency_ms }}ms · {{ vp.created_at|ago }}{{ ' · 글 #' ~ vp.post_id if vp.post_id }}</span>
+      <div class="muted" style="margin-top:4px">{% for d in vp.result.detections %}{{ {'have':'🟣','want':'🔵'}.get(d.mark, '⚪') }}{{ d.candidates[0].name if d.candidates else '?' }}<span style="opacity:.6">({{ d.label_text or d.animal }})</span>{{ ' ' }}{% endfor %}</div>
+    </div>
+  </div>
+  {% if vp.result.catalog_suggestion %}
+  <form method="post" action="/admin/catalog" style="margin-top:8px">
+    <textarea name="text" style="min-height:90px;font-size:12px">{{ vp.result.catalog_suggestion }}</textarea>
+    <button class="btn sm pink" style="margin-top:6px">이름 다듬고 카탈로그에 추가</button>
+  </form>
+  {% endif %}
+</div>
+{% else %}<div class="empty">아직 인식 기록이 없어요</div>{% endfor %}
+{% endblock %}

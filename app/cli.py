@@ -3,6 +3,8 @@
   python -m app.cli admin <닉네임|kakao_id>   # 관리자 지정
   python -m app.cli stats          # 지표 요약 출력 (포트폴리오 수치 확인용)
   python -m app.cli demo           # 로컬 데모 데이터 생성
+  python -m app.cli vision <이미지> [정답.json]   # 사진 인식 테스트 (ANTHROPIC_API_KEY 필요)
+     정답.json 예: {"have": ["양", "돼지"], "want": ["강아지", "쥐"]}  → 정확도 출력
 """
 import sys
 
@@ -114,7 +116,37 @@ def demo():
         print("데모 데이터 생성 완료")
 
 
+def vision_cli(path: str, answer: str | None = None):
+    import json
+    from pathlib import Path
+
+    from .db import SessionLocal
+    from .main import init_db
+    from .services import vision
+
+    init_db()
+    with SessionLocal() as db:
+        raw, res, _, ms = vision.parse_image(db, Path(path).read_bytes())
+    print(f"모델 {vision.settings.VISION_MODEL} · {ms}ms · {res['image_type']}")
+    print("시리즈:", res["series"]["name"] if res["series"] else f"❓ {res['series_text']}")
+    got = {"have": [], "want": []}
+    for d in res["detections"]:
+        top = d["candidates"][0]["name"] if d["candidates"] else "?"
+        print(f"  [{d['mark']:>4}] {d['label_text'] or '-':<8} {d['animal']:<4} → {top}"
+              f"  (후보: {', '.join(c['name'] + ':' + str(c['score']) for c in d['candidates'])})")
+        if d["mark"] in got and d["auto"]:
+            got[d["mark"]].append(top)
+    if answer:
+        ans = json.loads(Path(answer).read_text(encoding="utf-8"))
+        total = sum(len(ans.get(k, [])) for k in ("have", "want"))
+        hit = sum(len(set(ans.get(k, [])) & set(got[k])) for k in ("have", "want"))
+        print(f"정확도: {hit}/{total}")
+
+
 if __name__ == "__main__":
+    if len(sys.argv) > 2 and sys.argv[1] == "vision":
+        vision_cli(sys.argv[2], sys.argv[3] if len(sys.argv) > 3 else None)
+        sys.exit()
     cmd = sys.argv[1] if len(sys.argv) > 1 else ""
     {"vapid": vapid, "stats": stats, "demo": demo}.get(cmd, lambda: None)() if cmd != "admin" else make_admin(sys.argv[2])
     if cmd not in ("vapid", "stats", "demo", "admin"):

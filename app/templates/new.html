@@ -11,6 +11,18 @@
     </div>
   </div>
 
+  {% if vision %}
+  <div class="panel" id="ai-box" style="background:linear-gradient(135deg,#FFF0F5,#F1ECFF);box-shadow:none;border:1.5px solid #F3DDE8">
+    <div class="row" style="justify-content:space-between">
+      <div><b>✨ 사진으로 자동 채우기</b><div class="small muted">라인업·교환 이미지나 인형 사진을 올리면 AI가 인형을 찾아 줘요</div></div>
+      <label class="btn sm pink" for="ai-input" style="flex:none">사진 선택</label>
+    </div>
+    <input type="file" id="ai-input" accept="image/*" hidden>
+    <div id="ai-result"></div>
+  </div>
+  <input type="hidden" name="vision_parse_id" id="vision_parse_id">
+  {% endif %}
+
   <div class="field" data-show="sell trade">
     <span class="label">사진 <span class="muted small">(실물 사진, 최대 {{ max_photos }}장)</span></span>
     <div class="photos" id="photos">

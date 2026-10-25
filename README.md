@@ -10,6 +10,7 @@
 - 시리즈·캐릭터 검색 (별칭·공백 무시), 구분/시리즈 필터
 - 🔔 관심 알림: 캐릭터 또는 시리즈 단위, 글 종류·최대가격 조건 → 앱 내 알림함 + 웹 푸시
 - 🔁 맞교환 자동 매칭: 서로 원하는 인형을 가진 교환글끼리 연결
+- ✨ 사진으로 자동 채우기: 라인업·교환 이미지(HAVE/WISH 표시)나 실물 사진 → 비전 AI가 시리즈·캐릭터·가진것/원하는것 추출 → 카탈로그 후보 3개 제시, 사용자가 확정. 정확도(Top-1/Top-3)와 라벨을 자동 기록 (`/admin/vision`)
 - 연락: 1:1 오픈채팅 링크 이동 / 카톡 ID 복사 (클릭 기록)
 - 글 상태(거래중·예약중·거래완료), 무료 끌어올리기(24시간 1회 — 유료화 자리), 신고
 - 베타 사전신청 페이지 (`PRELAUNCH=1` 이면 홈이 베타 페이지로 이동)
@@ -23,7 +24,9 @@ pip install -r requirements-dev.txt
 python -m app.cli demo                 # (선택) 데모 데이터
 ADMIN_IDS=말랑이 uvicorn app.main:app --reload
 # http://localhost:8000 → 로그인 화면의 '개발용 테스트 로그인' 사용
-pytest -q                              # 테스트 11개
+pytest -q                              # 테스트 15개
+# 사진 인식: 키 없이 화면 확인은 VISION_PROVIDER=mock, 실제 모델 테스트는
+ANTHROPIC_API_KEY=... python -m app.cli vision tests/fixtures/lullaby_trade.png tests/fixtures/lullaby_trade.answer.json
 ```
 
 ## 배포 (Cloud Run + Supabase + R2, 월 0원 목표)

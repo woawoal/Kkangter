@@ -45,6 +45,17 @@ class Settings:
     MAX_PHOTOS = 5
     MAX_UPLOAD_BYTES = 8 * 1024 * 1024
 
+    # 사진 자동 인식 (비전 AI). 키가 없으면 버튼이 숨겨진다.
+    VISION_PROVIDER = _env("VISION_PROVIDER", "anthropic")  # anthropic | mock
+    ANTHROPIC_API_KEY = _env("ANTHROPIC_API_KEY")
+    # 작은 중국어 이름표를 읽어야 해서 기본은 Sonnet. 비용을 줄이려면 claude-haiku-5-5 로 비교해 볼 것
+    VISION_MODEL = _env("VISION_MODEL", "claude-sonnet-5-5")
+    VISION_DAILY_LIMIT = int(_env("VISION_DAILY_LIMIT", "30"))  # 사용자당 하루 호출 수
+
+    @property
+    def vision_enabled(self) -> bool:
+        return self.VISION_PROVIDER == "mock" or bool(self.ANTHROPIC_API_KEY)
+
     @property
     def dev_login_enabled(self) -> bool:
         # 카카오 키가 없는 로컬 개발 환경에서만 테스트 로그인 허용
