@@ -1,4 +1,4 @@
-# 깡장터 — 랜덤깡 인형 양도·교환 MVP
+# Kkangter (깡터) — 랜덤깡 인형 양도·교환 MVP
 
 오픈톡방에서 묻히던 인형 양도·교환글을 **검색**하고, 원하는 인형이 올라오면 **알림**받는 모바일 웹 서비스.
 
@@ -33,10 +33,10 @@ pytest -q                              # 테스트 11개
 4. **VAPID 키**: `python -m app.cli vapid`
 5. **배포**
    ```bash
-   gcloud run deploy kkang --source . --region asia-northeast3 --allow-unauthenticated \
+   gcloud run deploy kkangter --source . --region asia-northeast3 --allow-unauthenticated \
      --min-instances 0 --max-instances 2 --memory 512Mi \
      --set-env-vars "ENV=prod,BASE_URL=https://도메인,PRELAUNCH=1,STORAGE_BACKEND=s3,..." \
-     --set-secrets "SECRET_KEY=kkang-secret:latest,DATABASE_URL=kkang-db:latest,..."
+     --set-secrets "SECRET_KEY=kkangter-secret:latest,DATABASE_URL=kkangter-db:latest,..."
    ```
    환경변수 전체 목록은 `.env.example`.
 6. 도메인 연결 → 처음 로그인한 뒤 `ADMIN_IDS` 에 내 카카오 회원번호를 넣고 재배포.

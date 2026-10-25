@@ -10,7 +10,7 @@ def _env(key: str, default: str = "") -> str:
 
 
 class Settings:
-    APP_NAME = _env("APP_NAME", "깡장터")
+    APP_NAME = _env("APP_NAME", "깡터")
     ENV = _env("ENV", "dev")  # dev | prod
     SECRET_KEY = _env("SECRET_KEY", "dev-secret-change-me")
     BASE_URL = _env("BASE_URL", "http://localhost:8000")

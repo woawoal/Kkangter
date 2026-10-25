@@ -1,6 +1,6 @@
 {
-  "name": "깡장터 - 랜덤깡 인형 양도·교환",
-  "short_name": "깡장터",
+  "name": "깡터 - 랜덤깡 인형 양도·교환",
+  "short_name": "깡터",
   "start_url": "/?src=pwa",
   "display": "standalone",
   "background_color": "#FFF8F1",
