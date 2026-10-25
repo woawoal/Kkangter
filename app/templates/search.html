@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% from "partials/card.html" import post_grid %}
+{% block content %}
+<form action="/search" class="searchbar">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8A7D76" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+  <input name="q" type="search" value="{{ q }}" placeholder="인형 이름, 시리즈로 검색" autofocus autocomplete="off">
+  {% if type %}<input type="hidden" name="type" value="{{ type }}">{% endif %}
+</form>
+
+{% if q %}
+  {% if chars %}
+  <div class="label">캐릭터</div>
+  <div class="chips">{% for c in chars %}<a href="/c/{{ c.id }}" class="chip">{{ c.name }} <span class="muted small">· {{ c.series.name }}</span></a>{% endfor %}</div>
+  <div class="tabs">
+    <a href="/search?q={{ q|urlencode }}" class="{{ 'on' if not type }}">전체</a>
+    {% for k, v in types.items() %}<a href="/search?q={{ q|urlencode }}&type={{ k }}" class="{{ 'on' if type == k }}">{{ v }}</a>{% endfor %}
+  </div>
+  {{ post_grid(posts, '지금은 올라온 글이 없어요. 캐릭터를 눌러 알림을 신청해 두세요 🔔') }}
+  {% else %}
+  <div class="empty"><b>🔍</b>'{{ q }}'에 맞는 인형을 찾지 못했어요.<br><span class="small">카탈로그에 없는 인형이면 글쓰기 화면에서 추가를 요청할 수 있어요.</span></div>
+  {% endif %}
+{% else %}
+  <div class="h2">시리즈별로 찾기</div>
+  {% for s in series_list %}
+  <div class="panel">
+    <div class="row" style="justify-content:space-between;margin-bottom:10px"><b>{{ s.name }}</b><a href="/?series={{ s.id }}" class="small muted">글 보기 ›</a></div>
+    <div class="checks">{% for c in s.characters %}<a href="/c/{{ c.id }}" class="chip">{{ c.name }}{% if c.is_secret %} ✦{% endif %}</a>{% endfor %}</div>
+  </div>
+  {% endfor %}
+{% endif %}
+{% endblock %}

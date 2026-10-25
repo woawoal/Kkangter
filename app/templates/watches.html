@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="h1">🔔 관심 알림</div>
+<p class="muted small" style="margin-top:0">등록한 인형이 양도·교환으로 올라오면 바로 알려드려요. 오픈톡방에서 놓치던 글, 이제 안 놓쳐요.</p>
+
+{% include "partials/push.html" %}
+
+<div class="h2">알림 받는 인형 {{ watches|length }}</div>
+<div class="list">
+{% for w in watches %}
+  <div class="li">
+    <div class="grow"><a href="{{ '/c/' ~ w.character_id if w.character_id else '/?series=' ~ w.series_id }}" style="display:block;padding:0;border:0"><b>{{ w.target_label }}</b></a>
+      <div class="small muted">{{ w.post_types.replace('sell','양도').replace('trade','교환').replace('want','구해요').replace(',', '·') }}{{ ' · ' ~ (w.max_price|won) ~ ' 이하' if w.max_price }}</div></div>
+    <form method="post" action="/watch/{{ w.id }}/delete"><button class="btn ghost sm">해제</button></form>
+  </div>
+{% else %}
+  <div class="empty"><b>🔕</b>아직 알림 받는 인형이 없어요</div>
+{% endfor %}
+</div>
+
+<div class="h2">알림 추가</div>
+<form method="post" action="/watch" class="panel" id="wf">
+  <div class="field"><label>시리즈</label>
+    <select name="series_id" id="ws">{% for s in series_list %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}</select></div>
+  <div class="field"><label>캐릭터</label>
+    <select name="character_id" id="wc"></select></div>
+  <div class="field"><span class="label">이런 글이 올라오면</span>
+    <div class="checks">
+      <input type="checkbox" id="pt1" name="post_types" value="sell" checked><label for="pt1">양도</label>
+      <input type="checkbox" id="pt2" name="post_types" value="trade" checked><label for="pt2">교환</label>
+      <input type="checkbox" id="pt3" name="post_types" value="want"><label for="pt3">구해요 <span class="small">(내가 팔 때)</span></label>
+    </div></div>
+  <div class="field"><label for="mp">최대 가격 <span class="muted small">(선택)</span></label>
+    <input type="text" inputmode="numeric" name="max_price" id="mp" placeholder="예: 20000"></div>
+  <button class="btn pink">알림 신청</button>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+const DATA = {
+{% for s in series_list %}"{{ s.id }}": [{% for c in s.characters %}[{{ c.id }}, {{ c.name|tojson }}]{{ ',' if not loop.last }}{% endfor %}]{{ ',' if not loop.last }}
+{% endfor %}};
+const ws = document.getElementById('ws'), wc = document.getElementById('wc');
+function fill(){ wc.innerHTML = '<option value="">시리즈 전체</option>' + (DATA[ws.value]||[]).map(([id,n]) => `<option value="${id}">${n.replace(/</g,'&lt;')}</option>`).join(''); }
+ws.onchange = fill; fill();
+</script>
+{% endblock %}

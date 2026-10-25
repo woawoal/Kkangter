@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="h1">{{ '프로필 수정' if user.onboarded else '거의 다 왔어요! 👋' }}</div>
+<p class="muted" style="margin-top:0">거래할 때 상대가 연락할 방법을 알려 주세요.</p>
+{% if error %}<div class="error">{{ error }}</div>{% endif %}
+<form method="post" action="/onboarding" class="panel">
+  <div class="field"><label for="nn">닉네임</label>
+    <input type="text" id="nn" name="nickname" value="{{ user.nickname }}" maxlength="30" required>
+    <p class="hint">오픈톡방에서 쓰는 닉네임과 같게 하면 알아보기 쉬워요</p></div>
+  <div class="field"><label for="oc">1:1 오픈채팅 링크 <span class="muted small">(추천)</span></label>
+    <input type="url" id="oc" name="openchat_url" value="{{ user.openchat_url }}" placeholder="https://open.kakao.com/o/...">
+    <p class="hint">카카오톡 › 오픈채팅 › 1:1 채팅방 만들기 › 링크 복사. 내 카톡 프로필이 노출되지 않아 안전해요.</p></div>
+  <div class="field"><label for="kt">또는 카카오톡 ID</label>
+    <input type="text" id="kt" name="kakao_talk_id" value="{{ user.kakao_talk_id }}" maxlength="50"></div>
+  <button class="btn pink">저장하기</button>
+</form>
+{% endblock %}

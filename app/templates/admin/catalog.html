@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+{% include "admin/_nav.html" %}
+<form method="post" action="/admin/catalog" class="panel">
+  <div class="label">일괄 추가</div>
+  <textarea name="text" placeholder="시리즈명 | 캐릭터명 | 별칭(선택) | 시크릿(y)&#10;치이카와 랜덤 마스코트 | 시사 | shisa&#10;새 시리즈 | 캐릭터A | | y" style="min-height:140px;font-size:13px"></textarea>
+  <p class="hint">없는 시리즈는 자동으로 만들어져요. 이미 있는 캐릭터는 건너뛰어요.</p>
+  <button class="btn sm pink" style="margin-top:8px">추가</button>
+</form>
+{% if reqs %}
+<div class="h2">추가 요청</div>
+<div class="panel small">{% for r in reqs %}<div>· {{ r.props.get('text') }} <span class="muted">({{ r.created_at|ago }})</span></div>{% endfor %}</div>
+{% endif %}
+<div class="h2">현재 카탈로그</div>
+{% for s in series_list %}
+<div class="panel"><b>{{ s.name }}</b> <span class="muted small">#{{ s.id }} · {{ s.characters|length }}종</span>
+  <div class="small muted" style="margin-top:6px">{% for c in s.characters %}{{ c.name }}{{ '✦' if c.is_secret }}{{ ', ' if not loop.last }}{% endfor %}</div></div>
+{% endfor %}
+{% endblock %}

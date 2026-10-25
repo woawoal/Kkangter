@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="padding:48px 0 24px" class="center">
+  <div class="logo" style="justify-content:center;font-size:26px"><i style="width:40px;height:40px;font-size:20px;border-radius:12px">깡</i>{{ settings.APP_NAME }}</div>
+  <p class="muted" style="margin:14px 0 32px">랜덤깡 인형 양도·교환·구해요<br>원하는 인형이 올라오면 바로 알려드려요</p>
+  {% if kakao %}<a href="/auth/kakao" class="btn kakao">카카오로 3초 만에 시작하기</a>{% endif %}
+  {% if dev %}
+  <form method="post" action="/auth/dev" class="panel" style="margin-top:16px;text-align:left">
+    <div class="label">🛠 개발용 테스트 로그인 <span class="muted small">(ENV=prod 에서는 숨겨짐)</span></div>
+    <div class="row"><input type="text" name="nickname" placeholder="닉네임" required><button class="btn sm" style="height:46px">입장</button></div>
+  </form>
+  {% endif %}
+  <p class="hint" style="margin-top:20px">시작하면 <a href="/terms" style="text-decoration:underline">이용약관</a>과 <a href="/privacy" style="text-decoration:underline">개인정보처리방침</a>에 동의하는 것으로 봐요.</p>
+</div>
+{% endblock %}
+{% block nav %}{% endblock %}

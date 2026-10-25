@@ -1,0 +1,32 @@
+{% macro post_card(p) -%}
+{% set items = p.have_items or p.want_items %}
+<a href="/p/{{ p.id }}" class="card{{ ' dim' if p.status == 'done' }}">
+  <div class="ph">
+    {% if p.photos %}<img src="{{ p.photos[0].url }}" alt="{{ p.title }}" loading="lazy">{% else %}🧸{% endif %}
+  </div>
+  {% if p.status == 'reserved' %}<div class="state">예약중</div>{% elif p.status == 'done' %}<div class="state">거래완료</div>{% endif %}
+  <span class="tag t-{{ p.type }}">{{ p.type_label }}</span>
+  <div class="body">
+    <div class="name">{{ p.title }}</div>
+    <div class="series">{{ items[0].character.series.name if items else '' }}</div>
+    <div class="meta">
+      <span class="price">
+        {%- if p.type == 'trade' -%}
+          {{ ('↔ ' ~ p.want_items[0].character.name) if p.want_items else '교환' }}
+        {%- elif p.price -%}{{ p.price|won }}
+        {%- elif items and items[0].price -%}{{ items[0].price|won }}
+        {%- else -%}가격제안{%- endif -%}
+      </span>
+      <span>{{ p.bumped_at|ago }}</span>
+    </div>
+  </div>
+</a>
+{%- endmacro %}
+
+{% macro post_grid(posts, empty_msg='아직 글이 없어요') -%}
+{% if posts %}
+<div class="grid">{% for p in posts %}{{ post_card(p) }}{% endfor %}</div>
+{% else %}
+<div class="empty"><b>🧸</b>{{ empty_msg }}</div>
+{% endif %}
+{%- endmacro %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% from "partials/card.html" import post_grid %}
+{% block title %}{{ ch.name }} 양도·교환 · {{ settings.APP_NAME }}{% endblock %}
+{% block content %}
+<div class="panel" style="margin-top:14px">
+  <div class="muted small">{{ ch.series.name }}</div>
+  <div class="row" style="justify-content:space-between">
+    <div class="h1" style="margin:2px 0 8px">{{ ch.name }} {% if ch.is_secret %}<span class="tag t-secret">시크릿</span>{% endif %}</div>
+  </div>
+  <div class="row small" style="gap:6px;margin-bottom:12px">
+    <span class="tag t-sell">양도 {{ counts.get('sell', 0) }}</span>
+    <span class="tag t-trade">교환 {{ counts.get('trade', 0) }}</span>
+    <span class="tag t-want">구해요 {{ counts.get('want', 0) }}</span>
+  </div>
+  {% if recent_prices %}
+  <div class="small muted" style="margin-bottom:12px">최근 거래가: {% for pr, d in recent_prices %}<b style="color:var(--ink)">{{ pr|won }}</b>{{ ', ' if not loop.last }}{% endfor %}</div>
+  {% endif %}
+  {% if watch %}
+    <form method="post" action="/watch/{{ watch.id }}/delete"><input type="hidden" name="next" value="/c/{{ ch.id }}">
+      <button class="btn ghost">🔔 알림 받는 중 · 해제하기</button></form>
+  {% else %}
+    <form method="post" action="/watch"><input type="hidden" name="character_id" value="{{ ch.id }}"><input type="hidden" name="next" value="/c/{{ ch.id }}">
+      <input type="hidden" name="post_types" value="sell"><input type="hidden" name="post_types" value="trade">
+      <button class="btn pink">🔔 {{ ch.name }} 올라오면 알려주세요</button></form>
+  {% endif %}
+  <div class="row" style="margin-top:8px">
+    <a class="btn ghost sm" style="flex:1" href="/new?type=want&char={{ ch.id }}">구해요 글 쓰기</a>
+    <a class="btn ghost sm" style="flex:1" href="/new?type=sell&char={{ ch.id }}">양도 글 쓰기</a>
+  </div>
+</div>
+<div class="tabs">
+  <a href="/c/{{ ch.id }}" class="{{ 'on' if not type }}">전체</a>
+  {% for k, v in types.items() %}<a href="/c/{{ ch.id }}?type={{ k }}" class="{{ 'on' if type == k }}">{{ v }}</a>{% endfor %}
+</div>
+{{ post_grid(posts, '지금은 올라온 글이 없어요. 알림을 신청해 두면 올라오는 즉시 알려드려요!') }}
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block topleft %}<a href="javascript:history.back()" class="logo" style="font-size:17px">‹ 글쓰기</a>{% endblock %}
+{% block content %}
+{% if errors %}<div class="error">{% for e in errors %}{{ e }}<br>{% endfor %}</div>{% endif %}
+<form method="post" action="/new" enctype="multipart/form-data" id="f" style="margin-top:14px">
+  <div class="field">
+    <div class="seg">
+      {% for k, v in types.items() %}
+      <input type="radio" name="type" id="t_{{ k }}" value="{{ k }}" {{ 'checked' if type == k }}><label for="t_{{ k }}">{{ v }}</label>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="field" data-show="sell trade">
+    <span class="label">사진 <span class="muted small">(실물 사진, 최대 {{ max_photos }}장)</span></span>
+    <div class="photos" id="photos">
+      <label class="add" for="photo-input">📷<br>사진 추가</label>
+    </div>
+    <input type="file" id="photo-input" name="photos" accept="image/*" multiple hidden>
+  </div>
+
+  <div class="field" data-show="sell trade">
+    <span class="label" id="have-label">양도할 인형</span>
+    <div class="picked" id="have-picked"></div>
+    <div class="picker" data-role="have"></div>
+  </div>
+
+  <div class="field" data-show="trade want">
+    <span class="label" id="want-label">원하는 인형</span>
+    <div class="picked" id="want-picked"></div>
+    <div class="picker" data-role="want"></div>
+  </div>
+
+  <p class="hint" style="margin:-8px 0 18px">찾는 인형이 없나요? <a href="#" id="req" style="text-decoration:underline">카탈로그 추가 요청</a></p>
+
+  <div class="field" data-show="sell want">
+    <label for="price" id="price-label">전체 가격</label>
+    <input type="text" inputmode="numeric" name="price" id="price" placeholder="예: 15000 (비우면 가격 제안)">
+    <p class="hint" data-show="sell">인형별 가격은 위에서 각각 입력할 수 있어요. 모아 두면 시세 정보가 돼요.</p>
+  </div>
+
+  <div class="field">
+    <label for="ship">거래 방법</label>
+    <div class="checks" id="ship">
+      {% for m in ['반값택배', 'GS 반값', 'CU 끼리', '일반택배', '직거래'] %}
+      <input type="checkbox" id="sm{{ loop.index }}" value="{{ m }}"><label for="sm{{ loop.index }}">{{ m }}</label>
+      {% endfor %}
+    </div>
+    <input type="hidden" name="ship_method" id="ship_method">
+  </div>
+
+  <div class="field">
+    <label for="note">설명</label>
+    <textarea name="note" id="note" maxlength="1000" placeholder="상태(택 유무, 개봉 여부), 구성, 교환 조건 등을 적어 주세요"></textarea>
+  </div>
+  <button class="btn pink" id="submit">올리기</button>
+  <p class="hint center">연락처는 프로필에 저장한 오픈채팅/카톡 ID로 연결돼요</p>
+  <div style="height:24px"></div>
+</form>
+{% endblock %}
+{% block nav %}{% endblock %}
+{% block scripts %}
+<script>
+const CATALOG = {{ catalog_json|tojson }};
+const PRESET = {{ ({'id': preset.id, 'name': preset.name} if preset else None)|tojson }};
+const MAX = {{ max_photos }};
+</script>
+<script src="/static/new-post.js?v=1"></script>
+{% endblock %}

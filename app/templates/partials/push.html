@@ -1,0 +1,31 @@
+{% if push_key %}
+<div class="panel" id="push-box" style="display:none;margin-top:12px">
+  <b>📲 휴대폰 알림 켜기</b>
+  <p class="small muted" style="margin:4px 0 10px" id="push-msg">관심 인형이 올라오면 휴대폰으로 바로 알려드려요.</p>
+  <button class="btn sm pink" id="push-btn">알림 켜기</button>
+</div>
+<script>
+(() => {
+  const box = document.getElementById('push-box'), msg = document.getElementById('push-msg'), btn = document.getElementById('push-btn');
+  const ios = /iphone|ipad/i.test(navigator.userAgent), standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  if (!('serviceWorker' in navigator)) return;
+  box.style.display = '';
+  if (!('PushManager' in window)) {
+    if (ios && !standalone) { msg.innerHTML = '아이폰은 Safari 공유 버튼 › <b>홈 화면에 추가</b> 후 앱을 열면 알림을 켤 수 있어요. 그 전에는 상단 🔔에서 확인하세요.'; btn.style.display = 'none'; }
+    else box.style.display = 'none';
+    return;
+  }
+  if (Notification.permission === 'granted') { msg.textContent = '알림이 켜져 있어요 ✅'; btn.style.display = 'none'; subscribe(); return; }
+  const b64 = s => { const p = '='.repeat((4 - s.length % 4) % 4); const r = atob((s + p).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from([...r].map(c => c.charCodeAt(0))); };
+  async function subscribe() {
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription() || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64('{{ push_key }}') });
+    await fetch('/push/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(sub) });
+  }
+  btn.onclick = async () => {
+    if (await Notification.requestPermission() !== 'granted') { msg.textContent = '알림이 차단돼 있어요. 브라우저 설정에서 허용해 주세요.'; return; }
+    await subscribe(); msg.textContent = '알림이 켜졌어요 ✅'; btn.style.display = 'none';
+  };
+})();
+</script>
+{% endif %}

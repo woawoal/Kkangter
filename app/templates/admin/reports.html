@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+{% include "admin/_nav.html" %}
+<div class="list">
+{% for r in items %}
+  <div class="li" style="{{ 'opacity:.5' if r.resolved }}">
+    <div class="grow"><a href="/p/{{ r.post_id }}" style="padding:0;border:0;display:block"><b>#{{ r.post_id }} {{ r.post.title }}</b></a>
+      <div class="small muted">{{ r.reason }} · {{ r.created_at|ago }}</div></div>
+    {% if not r.resolved %}
+    <form method="post" action="/p/{{ r.post_id }}/status"><button name="status" value="hidden" class="btn ghost sm">숨김</button></form>
+    <form method="post" action="/admin/reports/{{ r.id }}/resolve"><button class="btn sm">처리</button></form>
+    {% endif %}
+  </div>
+{% else %}<div class="empty">신고가 없어요 👍</div>{% endfor %}
+</div>
+{% endblock %}

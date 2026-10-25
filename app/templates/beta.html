@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}{{ settings.APP_NAME }} 베타 테스터 모집 · 랜덤깡 인형 양도·교환{% endblock %}
+{% block topbar %}<header class="top"><div class="wrap"><span class="logo"><i>깡</i>{{ settings.APP_NAME }}</span></div></header>{% endblock %}
+{% block content %}
+{% if done %}
+<div class="center" style="padding:56px 0">
+  <div style="font-size:54px">🎉</div>
+  <div class="h1">신청 완료!</div>
+  <p class="muted">오픈 전에 오픈톡으로 가장 먼저 알려드릴게요.<br>베타 테스터에게는 <b>끌어올리기 무료 이용권</b>을 드려요.</p>
+  <button class="btn ghost" style="margin-top:12px" onclick="navigator.share ? navigator.share({title:'{{ settings.APP_NAME }} 베타',url:location.origin+'/beta?src=share'}) : navigator.clipboard.writeText(location.origin+'/beta?src=share').then(()=>this.textContent='링크 복사됨!')">랜덤깡 친구에게 공유하기</button>
+</div>
+{% else %}
+<section class="hero">
+  <span class="pill">🧸 베타 테스터 모집 중 · {{ count }}명 신청</span>
+  <h1>오픈톡방에서 묻히던 인형 글,<br><em>검색하고 알림 받으세요</em></h1>
+  <p class="muted" style="margin:0">랜덤깡 인형 양도·교환·구해요를 한곳에 모았어요.</p>
+</section>
+<div class="pain">
+  <div><b>🔍</b><p><b>캐릭터로 바로 검색</b><br><small>시리즈·캐릭터별로 누가 갖고 있고 누가 찾는지 한눈에</small></p></div>
+  <div><b>🔔</b><p><b>“이 인형 올라오면 알려줘”</b><br><small>원하는 인형이 양도·교환으로 올라오는 순간 알림</small></p></div>
+  <div><b>🔁</b><p><b>맞교환 자동 매칭</b><br><small>내 인형을 원하고, 내가 원하는 인형을 가진 사람을 찾아줘요</small></p></div>
+</div>
+{% if error %}<div class="error">{{ error }}</div>{% endif %}
+<form method="post" action="/beta" class="panel" id="beta">
+  <div class="h2" style="margin-top:0">베타 신청 (30초)</div>
+  <div class="field"><label for="nn">오픈톡방 닉네임</label><input type="text" id="nn" name="nickname" required maxlength="30" placeholder="오픈톡에서 쓰는 닉네임"></div>
+  <div class="field"><label for="ct">연락받을 곳</label><input type="text" id="ct" name="contact" required maxlength="120" placeholder="카톡 ID, 1:1 오픈채팅 링크 또는 이메일"></div>
+  <div class="field"><span class="label">관심 있는 시리즈 <span class="muted small">(여러 개 선택)</span></span>
+    <div class="checks">{% for s in series_list %}<input type="checkbox" id="i{{ s.id }}" name="interests" value="{{ s.name }}"><label for="i{{ s.id }}">{{ s.name }}</label>{% endfor %}</div>
+    <input type="text" name="interests_etc" placeholder="그 외 시리즈 (자유 입력)" style="margin-top:8px"></div>
+  <div class="field"><span class="label">주로 하고 싶은 것</span>
+    <div class="checks">
+      <input type="checkbox" id="r1" name="roles" value="sell"><label for="r1">양도</label>
+      <input type="checkbox" id="r2" name="roles" value="trade"><label for="r2">교환</label>
+      <input type="checkbox" id="r3" name="roles" value="want"><label for="r3">구하기</label>
+    </div></div>
+  <label class="small" style="display:flex;gap:8px;align-items:flex-start;margin-bottom:14px;font-weight:400">
+    <input type="checkbox" name="agree" value="1" required style="margin-top:3px">
+    <span>[필수] 베타 오픈 안내를 위해 닉네임·연락처·관심 시리즈를 수집하며, 정식 오픈 후 3개월 내 파기하는 데 동의해요.</span>
+  </label>
+  <button class="btn pink">베타 신청하기</button>
+</form>
+<p class="small muted center" style="margin-bottom:28px">혼자 만드는 서비스예요. 불편했던 점을 알려 주시면 바로 반영할게요 🙏</p>
+{% endif %}
+{% endblock %}
+{% block nav %}{% endblock %}

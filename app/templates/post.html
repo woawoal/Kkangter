@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% from "partials/card.html" import post_grid %}
+{% block title %}[{{ post.type_label }}] {{ post.title }} · {{ settings.APP_NAME }}{% endblock %}
+{% block head %}{% if post.photos %}<meta property="og:image" content="{{ post.photos[0].url }}">{% endif %}{% endblock %}
+{% block content %}
+{% if post.photos %}
+<div class="gallery" id="gal">{% for ph in post.photos %}<img src="{{ ph.url }}" alt="사진 {{ loop.index }}">{% endfor %}</div>
+{% if post.photos|length > 1 %}<div class="dots" id="dots">1 / {{ post.photos|length }}</div>{% endif %}
+{% endif %}
+
+<div class="author">
+  <div class="avatar">{{ post.user.nickname[:1] }}</div>
+  <div style="flex:1"><b>{{ post.user.nickname }}</b><div class="small muted">{{ post.created_at|ago }} 작성 · 조회 {{ post.view_count }}</div></div>
+  <span class="tag t-{{ post.type }}">{{ post.type_label }}</span>
+  {% if post.status != 'open' %}<span class="tag t-done">{{ post.status_label }}</span>{% endif %}
+</div>
+
+<div class="panel" style="margin-top:12px">
+  {% if post.have_items %}
+  <div class="label">{{ '양도해요' if post.type == 'sell' else '가지고 있어요' }}</div>
+  {% for it in post.have_items %}
+  <a href="/c/{{ it.character_id }}" class="item-row">
+    <span class="nm"><b>{{ it.character.name }}</b>{% if it.character.is_secret %} <span class="tag t-secret">시크릿</span>{% endif %}<small>{{ it.character.series.name }}</small></span>
+    {% if it.price %}<b>{{ it.price|won }}</b>{% endif %}
+  </a>
+  {% endfor %}
+  {% endif %}
+  {% if post.type == 'trade' %}<div class="arrow">⇅</div>{% endif %}
+  {% if post.want_items %}
+  <div class="label">{{ '구해요' if post.type == 'want' else '이 인형과 바꾸고 싶어요' }}</div>
+  {% for it in post.want_items %}
+  <a href="/c/{{ it.character_id }}" class="item-row">
+    <span class="nm"><b>{{ it.character.name }}</b><small>{{ it.character.series.name }}</small></span>
+  </a>
+  {% endfor %}
+  {% endif %}
+  {% if post.price %}<div class="row" style="justify-content:space-between;margin-top:10px"><span class="muted">{{ '희망 가격' if post.type == 'want' else '가격' }}</span><b style="font-size:18px">{{ post.price|won }}</b></div>{% endif %}
+  {% if post.ship_method %}<div class="small muted" style="margin-top:6px">거래 방법 · {{ post.ship_method }}</div>{% endif %}
+</div>
+
+{% if post.note %}<div class="panel" style="white-space:pre-wrap">{{ post.note }}</div>{% endif %}
+
+{% if mutual %}
+<div class="h2">🔁 딱 맞는 맞교환 상대 {{ mutual|length }}명</div>
+<p class="small muted" style="margin-top:-6px">내가 가진 인형을 원하고, 내가 원하는 인형을 가진 사람이에요.</p>
+{{ post_grid(mutual) }}
+{% endif %}
+
+{% if is_owner %}
+<div class="h2">내 글 관리</div>
+<div class="panel">
+  <form method="post" action="/p/{{ post.id }}/status" class="row" style="flex-wrap:wrap">
+    {% for k, v in statuses.items() if k != 'hidden' %}
+    <button name="status" value="{{ k }}" class="btn sm {{ 'pink' if k == 'done' else 'ghost' }}" {{ 'disabled' if post.status == k }}>{{ v }}</button>
+    {% endfor %}
+  </form>
+  <div class="row" style="margin-top:10px">
+    <form method="post" action="/p/{{ post.id }}/bump" style="flex:1"><button class="btn ghost sm" style="width:100%">⬆ 끌어올리기 (하루 1회 무료)</button></form>
+    <form method="post" action="/p/{{ post.id }}/status" onsubmit="return confirm('글을 숨길까요?')"><button name="status" value="hidden" class="btn ghost sm">숨기기</button></form>
+  </div>
+  <p class="hint">거래가 끝나면 꼭 <b>거래완료</b>를 눌러 주세요. 다른 분들이 헛걸음하지 않아요.</p>
+</div>
+{% else %}
+<details class="small muted" style="margin:18px 0 90px"><summary>이 글 신고하기</summary>
+  <form method="post" action="/p/{{ post.id }}/report" style="margin-top:8px">
+    <select name="reason"><option>사기 의심</option><option>가품/정보 불일치</option><option>거래완료 미처리</option><option>부적절한 내용</option></select>
+    <button class="btn ghost sm" style="margin-top:8px">신고</button>
+  </form>
+</details>
+<div class="sticky-cta"><div class="wrap">
+  <div style="flex:1;min-width:0"><b>{{ post.price|won if post.price else ('교환' if post.type == 'trade' else '가격 제안') }}</b><div class="small muted">연락은 오픈채팅·카톡으로 직접 해요</div></div>
+  {% if post.status == 'done' %}<button class="btn" style="width:auto" disabled>거래완료</button>
+  {% else %}<a class="btn pink" style="width:auto;padding:0 22px" href="/p/{{ post.id }}/contact">💬 연락하기</a>{% endif %}
+</div></div>
+{% endif %}
+{% endblock %}
+{% block nav %}{% if is_owner %}{{ super() }}{% endif %}{% endblock %}
+{% block scripts %}
+<script>
+const g=document.getElementById('gal'),d=document.getElementById('dots');
+if(g&&d){g.addEventListener('scroll',()=>{d.textContent=(Math.round(g.scrollLeft/g.clientWidth)+1)+' / '+g.children.length},{passive:true})}
+</script>
+{% endblock %}

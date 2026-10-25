@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row" style="justify-content:space-between"><div class="h1">알림</div>
+{% if unread %}<form method="post" action="/notifications/read-all"><button class="btn ghost sm">모두 읽음</button></form>{% endif %}</div>
+<div class="list">
+{% for n in items %}
+  <a href="/n/{{ n.id }}" class="{{ 'unread' if not n.read_at }}">
+    <div class="thumb" style="{{ 'background-image:url(' ~ n.post.photos[0].url ~ ')' if n.post.photos }}"></div>
+    <div class="grow"><div>{{ '🔁 ' if n.kind == 'mutual_trade' else '🔔 ' }}{{ n.message }}</div>
+      <div class="small muted">{{ n.created_at|ago }}{{ ' · ' ~ n.post.status_label if n.post.status != 'open' }}</div></div>
+  </a>
+{% else %}
+  <div class="empty"><b>🔔</b>아직 알림이 없어요<br><a href="/watches" class="btn pink" style="margin-top:14px">관심 인형 등록하기</a></div>
+{% endfor %}
+</div>
+{% endblock %}

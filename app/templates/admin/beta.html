@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+{% include "admin/_nav.html" %}
+<div class="row" style="justify-content:space-between"><div class="h2" style="margin:8px 0">베타 신청 {{ items|length }}명</div><a href="/admin/beta.csv" class="btn ghost sm">CSV 받기</a></div>
+<div class="panel" style="overflow-x:auto">
+<table><tr><th>닉네임</th><th>연락처</th><th>관심</th><th>용도</th><th>유입</th></tr>
+{% for b in items %}<tr><td>{{ b.nickname }}</td><td>{{ b.contact }}</td><td>{{ b.interests }}</td><td>{{ b.roles }}</td><td>{{ b.source }}</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

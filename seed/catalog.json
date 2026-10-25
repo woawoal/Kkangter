@@ -1,0 +1,43 @@
+{
+  "_note": "샘플 카탈로그입니다. 오픈톡방에서 실제로 많이 거래되는 시리즈/캐릭터로 교체하세요. 관리자 > 카탈로그 에서 한 줄씩 붙여넣어 추가할 수도 있어요. aliases 는 검색용 별칭(영문/줄임말/오타)입니다.",
+  "series": [
+    {
+      "name": "치이카와 랜덤 마스코트",
+      "brand": "치이카와",
+      "aliases": "chiikawa,치이카와,먼작귀",
+      "characters": [
+        {"name": "치이카와", "aliases": "chiikawa"},
+        {"name": "하치와레", "aliases": "hachiware"},
+        {"name": "우사기", "aliases": "usagi,토끼"},
+        {"name": "모몽가", "aliases": "momonga"},
+        {"name": "쿠리만쥬", "aliases": "kurimanju"},
+        {"name": "랏코", "aliases": "rakko,해달", "is_secret": true}
+      ]
+    },
+    {
+      "name": "산리오 캐릭터즈 랜덤 인형",
+      "brand": "산리오",
+      "aliases": "sanrio,산리오",
+      "characters": [
+        {"name": "헬로키티", "aliases": "hellokitty,키티"},
+        {"name": "마이멜로디", "aliases": "mymelody,마멜"},
+        {"name": "쿠로미", "aliases": "kuromi"},
+        {"name": "시나모롤", "aliases": "cinnamoroll,시나모"},
+        {"name": "폼폼푸린", "aliases": "pompompurin,푸린"},
+        {"name": "포차코", "aliases": "pochacco"},
+        {"name": "한교동", "aliases": "hangyodon"}
+      ]
+    },
+    {
+      "name": "라부부 (예시 시리즈)",
+      "brand": "POP MART",
+      "aliases": "labubu,라부부,더몬스터즈,themonsters,팝마트,popmart",
+      "characters": [
+        {"name": "컬러 A", "aliases": ""},
+        {"name": "컬러 B", "aliases": ""},
+        {"name": "컬러 C", "aliases": ""},
+        {"name": "시크릿", "aliases": "secret", "is_secret": true}
+      ]
+    }
+  ]
+}

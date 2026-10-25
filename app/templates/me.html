@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="author" style="margin-top:6px">
+  <div class="avatar">{{ user.nickname[:1] }}</div>
+  <div style="flex:1"><b>{{ user.nickname }}</b><div class="small muted">{{ '오픈채팅 연결됨' if user.openchat_url else ('카톡 ID: ' ~ user.kakao_talk_id if user.kakao_talk_id else '연락처 미등록') }}</div></div>
+  <a href="/onboarding" class="btn ghost sm">수정</a>
+</div>
+
+{% include "partials/push.html" %}
+
+<div class="h2">내 글 {{ posts|length }}</div>
+<div class="list">
+{% for p in posts %}
+  <a href="/p/{{ p.id }}">
+    <div class="thumb" style="{{ 'background-image:url(' ~ p.photos[0].url ~ ')' if p.photos }}"></div>
+    <div class="grow"><b>{{ p.title }}</b><div class="small muted">{{ p.type_label }} · {{ p.created_at|ago }} · 조회 {{ p.view_count }}</div></div>
+    <span class="tag {{ 't-done' if p.status != 'open' else 't-' ~ p.type }}">{{ p.status_label }}</span>
+  </a>
+{% else %}
+  <div class="empty"><b>📝</b>아직 쓴 글이 없어요<br><a href="/new" class="btn pink" style="margin-top:14px">첫 글 쓰기</a></div>
+{% endfor %}
+</div>
+
+<div style="margin:28px 0" class="small muted">
+  {% if user.is_admin %}<a href="/admin" class="btn ghost sm">📊 관리자</a>{% endif %}
+  <a href="/terms">이용약관</a> · <a href="/privacy">개인정보처리방침</a>
+  <form method="post" action="/logout" style="display:inline"> · <button style="border:0;background:none;color:inherit;font:inherit;padding:0;cursor:pointer">로그아웃</button></form>
+</div>
+{% endblock %}
